@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Berbagi Praktik Baik - Bimbingan Teknis Guru</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+        }
+        
+        /* Gaya kustom untuk konten slide */
+        .slide-content ul { list-style-type: none; padding-left: 0; }
+        .slide-content ul li { position: relative; padding-left: 1.75rem; margin-bottom: 0.85rem; font-size: 1.05rem; }
+        .slide-content ul li::before { content: '✦'; position: absolute; left: 0; top: 2px; color: #fb923c; /* orange-400 */ font-weight: 800; }
+        .slide-content ol { list-style-type: none; counter-reset: item; padding-left: 0; }
+        .slide-content ol li { position: relative; padding-left: 2.5rem; margin-bottom: 0.85rem; font-size: 1.05rem; counter-increment: item; }
+        .slide-content ol li::before { content: counter(item); position: absolute; left: 0; top: 0; width: 1.8rem; height: 1.8rem; border-radius: 50%; background-color: #fed7aa; /* orange-200 */ color: #9a3412; /* orange-800 */ font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; }
+        .slide-content h3 { font-size: 1.25rem; font-weight: 700; color: #c2410c; /* orange-700 */ margin-top: 2rem; margin-bottom: 0.75rem; padding-bottom: 0.25rem; border-bottom: 2px solid #fdba74; /* orange-300 */ }
+        .slide-content b { color: #9a3412; /* orange-800 */ }
+
+        /* Gaya Tab Aktif */
+        .tab-button-active { background-image: linear-gradient(to right, #f97316, #ea580c); color: white; box-shadow: 0 4px 14px 0 rgba(249, 115, 22, 0.3); border-color: transparent; }
+        .tab-button-locked { background-color: #e2e8f0; color: #94a3b8; cursor: not-allowed; border-color: #cbd5e1; }
+
+        /* Animasi */
+        @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fade-out { from { opacity: 1; } to { opacity: 0; } }
+        @keyframes fade-in-down { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slide-in-blurred {
+            from { opacity: 0; transform: translateY(20px) scale(0.98); filter: blur(5px); }
+            to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+        }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); } 20%, 40%, 60%, 80% { transform: translateX(5px); } }
+        .shake-anim { animation: shake 0.5s ease-in-out; }
+        .header-anim { animation: fade-in-down 0.6s ease-out both; }
+        .slide-container.animate { animation: slide-in-blurred 0.7s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+        
+        #progress-bar-fill { transition: width 0.6s cubic-bezier(0.25, 1, 0.5, 1); }
+
+        .modal-backdrop { transition: opacity 0.3s ease-in-out; }
+        .modal-content { transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease-in-out; }
+        .gemini-output { white-space: pre-wrap; }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <!-- Layar Login -->
+    <div id="login-screen" class="fixed inset-0 z-40 flex items-center justify-center bg-slate-100 p-4 transition-opacity duration-500">
+        <div class="w-full max-w-sm">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-extrabold text-slate-900">Selamat Datang</h1>
+                <p class="text-slate-600 mt-2">Masukkan kata sandi untuk memulai.</p>
+            </div>
+            <div class="bg-white p-8 rounded-2xl shadow-lg">
+                <div class="space-y-4">
+                    <div>
+                        <label for="page-password-input" class="text-sm font-medium text-slate-700">Kata Sandi</label>
+                        <input type="password" id="page-password-input" class="mt-1 w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500" placeholder="••••••••">
+                    </div>
+                    <p id="page-password-error" class="text-red-500 text-sm hidden">Kata sandi salah.</p>
+                </div>
+                <button id="page-login-button" class="mt-6 w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-lg shadow-lg shadow-orange-200 transition-all duration-200 active:scale-95">Masuk</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="main-content" class="container mx-auto p-4 sm:p-6 md:p-8 max-w-5xl hidden">
+        <!-- Header -->
+        <header class="text-center mb-12">
+            <div class="header-anim inline-block bg-orange-100 text-orange-700 text-sm font-semibold px-4 py-1 rounded-full mb-4" style="animation-delay: 0.1s;">Bimbingan Teknis Guru</div>
+            <h1 class="header-anim text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight" style="animation-delay: 0.2s;">Berbagi Praktik Baik</h1>
+            <p class="header-anim text-lg text-slate-600 mt-3 max-w-2xl mx-auto" style="animation-delay: 0.3s;">Dari Bimbingan Teknis Guru Koding & Kecerdasan Artifisial.</p>
+        </header>
+
+        <!-- Navigasi Modul -->
+        <nav class="mb-10">
+            <ul id="module-tabs" class="flex flex-wrap justify-center gap-3 sm:gap-4"></ul>
+        </nav>
+
+        <!-- Area Presentasi Slide -->
+        <main id="presentation-area" class="bg-white rounded-2xl shadow-xl shadow-slate-200/70 overflow-hidden border border-slate-200">
+            <div class="p-6 md:p-10 min-h-[450px]">
+                <div id="slide-container" class="slide-container">
+                    <div id="slide-display">
+                        <div id="slide-header">
+                            <h2 id="slide-title" class="text-2xl md:text-3xl font-bold text-orange-700 mb-2"></h2>
+                            <p id="slide-subtitle" class="text-md text-slate-500 mb-8"></p>
+                        </div>
+                        <div id="slide-content" class="slide-content prose max-w-none text-slate-700 leading-relaxed"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <footer class="bg-slate-50/70 border-t border-slate-200 px-6 py-4">
+                <div class="w-full bg-slate-200 rounded-full h-2.5 mb-4">
+                    <div id="progress-bar-fill" class="bg-gradient-to-r from-orange-500 to-amber-400 h-2.5 rounded-full"></div>
+                </div>
+                <div class="flex justify-between items-center">
+                    <button id="prev-slide" class="flex items-center gap-2 bg-white hover:bg-slate-100 text-slate-700 font-semibold py-2 px-5 rounded-lg border border-slate-300 transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md">
+                        <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
+                        <span>Sebelumnya</span>
+                    </button>
+                    <span id="slide-counter" class="text-slate-600 font-medium text-sm"></span>
+                    <button id="next-slide" class="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-5 rounded-lg transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-orange-200 hover:shadow-xl hover:shadow-orange-300">
+                        <span>Berikutnya</span>
+                        <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>
+                    </button>
+                </div>
+            </footer>
+        </main>
+    </div>
+
+    <!-- Modal Pengumpulan Tugas -->
+    <div id="submission-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+        <div id="modal-backdrop-submit" class="absolute inset-0 bg-black/60 modal-backdrop"></div>
+        <div id="modal-content-submit" class="modal-content bg-white rounded-2xl shadow-2xl w-full max-w-md m-4 p-6 transform scale-95 opacity-0">
+            <h3 class="text-2xl font-bold text-slate-800 mb-4">Pengumpulan Tugas</h3>
+            <p class="text-slate-600 mb-6">Pilih file tugas Anda untuk diunggah.</p>
+            <div id="drop-zone" class="border-2 border-dashed border-slate-300 rounded-lg p-8 text-center cursor-pointer hover:border-orange-500 hover:bg-orange-50 transition-colors">
+                <svg class="mx-auto h-12 w-12 text-slate-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true"><path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                <p class="mt-4 text-slate-500"><span class="font-semibold text-orange-600">Klik untuk memilih file</span> atau seret dan letakkan di sini</p>
+                <p class="text-xs text-slate-400 mt-1">PDF, DOCX, atau PNG (MAX. 10MB)</p>
+            </div>
+            <input type="file" id="file-input" class="hidden" accept=".pdf,.docx,.png">
+            <div id="file-info" class="hidden mt-4">
+                <div class="flex items-center bg-slate-100 p-3 rounded-lg">
+                    <svg class="h-6 w-6 text-slate-500 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                    <span id="file-name" class="text-sm font-medium text-slate-700"></span>
+                    <button id="remove-file" class="ml-auto text-slate-400 hover:text-red-500">&times;</button>
+                </div>
+                <div id="progress-container" class="w-full bg-slate-200 rounded-full h-2 mt-2 hidden">
+                    <div id="upload-progress" class="bg-orange-500 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+            </div>
+            <div class="mt-8 flex justify-end gap-3">
+                <button id="cancel-submission" class="bg-white hover:bg-slate-100 text-slate-700 font-semibold py-2 px-5 rounded-lg border border-slate-300 shadow-sm">Batal</button>
+                <button id="submit-button" class="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-5 rounded-lg shadow-lg shadow-orange-200 disabled:bg-slate-300 disabled:shadow-none">Submit</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal Password Pelatih -->
+    <div id="password-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+        <div id="modal-backdrop-password" class="absolute inset-0 bg-black/60 modal-backdrop"></div>
+        <div id="modal-content-password" class="modal-content bg-white rounded-2xl shadow-2xl w-full max-w-sm m-4 p-6 transform scale-95 opacity-0">
+            <h3 class="text-2xl font-bold text-slate-800 mb-2">Akses Pelatih</h3>
+            <p class="text-slate-600 mb-6">Masukkan kata sandi untuk membuka modul ini.</p>
+            <input type="password" id="password-input" class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500" placeholder="Kata Sandi">
+            <p id="password-error" class="text-red-500 text-sm mt-2 hidden">Kata sandi salah. Coba lagi.</p>
+            <div class="mt-8 flex justify-end gap-3">
+                <button id="cancel-password" class="bg-white hover:bg-slate-100 text-slate-700 font-semibold py-2 px-5 rounded-lg border border-slate-300 shadow-sm">Batal</button>
+                <button id="submit-password" class="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-5 rounded-lg shadow-lg shadow-orange-200">Buka</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Gemini -->
+    <div id="gemini-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+        <div id="gemini-modal-backdrop" class="absolute inset-0 bg-black/60 modal-backdrop"></div>
+        <div id="gemini-modal-content" class="modal-content bg-white rounded-2xl shadow-2xl w-full max-w-2xl m-4 transform scale-95 opacity-0 flex flex-col" style="max-height: 90vh;">
+            <div class="p-6 border-b">
+                <h3 id="gemini-modal-title" class="text-2xl font-bold text-slate-800"></h3>
+                <p id="gemini-modal-description" class="text-slate-600"></p>
+            </div>
+            <div class="p-6 flex-grow overflow-y-auto">
+                <div id="gemini-input-area">
+                    <!-- Input fields will be added here by JS -->
+                </div>
+                <div id="gemini-output-area" class="mt-4 p-4 bg-slate-50 rounded-lg border min-h-[200px]">
+                    <div id="gemini-loading" class="hidden text-center text-slate-500">
+                        <svg class="animate-spin h-8 w-8 text-orange-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        <p class="mt-2">Menghasilkan respons...</p>
+                    </div>
+                    <div id="gemini-output-content" class="gemini-output text-slate-700"></div>
+                </div>
+            </div>
+            <div class="p-6 border-t bg-slate-50 rounded-b-2xl flex justify-end gap-3">
+                <button id="gemini-modal-close" class="bg-white hover:bg-slate-100 text-slate-700 font-semibold py-2 px-5 rounded-lg border border-slate-300 shadow-sm">Tutup</button>
+                <button id="gemini-modal-generate" class="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-5 rounded-lg shadow-lg shadow-orange-200">✨ Hasilkan</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Notifikasi -->
+    <div id="notification" class="fixed top-5 right-5 z-[100] text-white py-3 px-6 rounded-lg shadow-lg flex items-center gap-3 transform translate-x-[120%] transition-transform duration-500">
+        <div id="notification-icon"></div>
+        <div>
+            <p id="notification-title" class="font-bold"></p>
+            <p id="notification-message" class="text-sm"></p>
+        </div>
+    </div>
+
+    <script>
+        // Data untuk semua modul dan slide
+        const presentationData = [
+            {
+                title: "Dasar Kurikulum Koding & KA",
+                slides: [
+                    { title: "Judul", subtitle: "Modul 1: Mata Pelajaran Koding dan Kecerdasan Artifisial (KKA) pada Kurikulum Nasional", content: "<ul><li>Bimbingan Teknis Guru Koding dan Kecerdasan Artifisial Jenjang SMA/SMK</li><li>Disusun oleh: Direktorat Jenderal Guru, Tenaga Kependidikan dan Pendidikan Guru</li></ul>" },
+                    { title: "Tujuan Pelatihan", subtitle: "Apa yang akan dicapai dalam Modul 1", content: "<ul><li>Mendefinisikan konsep dasar koding dan Kecerdasan Artifisial (KA).</li><li>Menerapkan konsep koding dan KA dalam proses pembelajaran.</li><li>Menyusun pembelajaran KKA yang berkontribusi pada pencapaian profil lulusan.</li><li>Mengembangkan nilai-nilai etika dalam koding dan KA.</li></ul>" },
+                    { title: "Latar Belakang", subtitle: "Mengapa Mapel Koding & KA Penting?", content: "<ul><li><b>Tantangan Global:</b> Menyiapkan SDM unggul di era Revolusi Industri 4.0 dan Masyarakat 5.0.</li><li><b>Kebutuhan Nasional:</b> Sejalan dengan Rencana Pembangunan Jangka Panjang Nasional (RPJPN) untuk meningkatkan literasi digital.</li></ul>" },
+                    { title: "Rasional Mapel KKA", subtitle: "Alasan Pentingnya Integrasi KKA dalam Kurikulum", content: "<ul><li><b>Peluang Ekonomi:</b> Mendukung inovasi, mendorong pertumbuhan industri digital, dan menciptakan peluang ekonomi baru.</li><li><b>Pengembangan Inovator:</b> Menghasilkan generasi yang mampu menciptakan solusi teknologi untuk tantangan sosial.</li></ul>" },
+                    { title: "Karakteristik Pembelajaran KKA", subtitle: "Pendekatan dalam Mengajar Koding & KA", content: "<ul><li>Menanamkan etika dan keadaban sebagai fondasi.</li><li>Pembelajaran kontekstual sesuai situasi sehari-hari.</li><li>Dapat dilaksanakan secara <i>unplugged</i>, <i>plugged</i>, dan <i>internet-based</i>.</li><li>Menggunakan pendekatan <i>human-centered</i>, di mana manusia menjadi fokus utama.</li></ul>" },
+                    { title: "Elemen 1: Berpikir Komputasional", subtitle: "Keterampilan Problem Solving Abad 21", content: "<h3>Empat Pilar Berpikir Komputasional:</h3><ol><li><b>Dekomposisi:</b> Memecah masalah kompleks menjadi bagian-bagian kecil.</li><li><b>Pengenalan Pola:</b> Mengidentifikasi kesamaan atau tren.</li><li><b>Abstraksi:</b> Fokus pada detail yang relevan dan mengabaikan yang tidak perlu.</li><li><b>Algoritma:</b> Mengembangkan langkah-langkah solusi yang sistematis.</li></ol>" },
+                    { title: "Contoh Berpikir Komputasional", subtitle: "Studi Kasus: Membuat Nasi Goreng", content: `<p class="mb-4">Bayangkan "membuat nasi goreng" adalah masalah besar yang perlu kita selesaikan. Kita bisa memecahkannya dengan 4 pilar berpikir komputasional.</p><h3>1. Dekomposisi (Memecah Masalah)</h3><p>Pertama, kita pecah masalah besar "membuat nasi goreng" menjadi tugas-tugas yang lebih kecil:</p><ul><li><b>Tugas 1:</b> Menyiapkan semua bahan.</li><li><b>Tugas 2:</b> Menyiapkan semua alat masak.</li><li><b>Tugas 3:</b> Memasak bumbu dan bahan pelengkap.</li><li><b>Tugas 4:</b> Mencampurkan nasi dengan bumbu.</li><li><b>Tugas 5:</b> Menyajikan nasi goreng.</li></ul><h3>2. Pengenalan Pola (Mencari Pola yang Sama)</h3><p>Kita mencari pola atau kesamaan dari pengalaman memasak sebelumnya:</p><ul><li><b>Pola Menumis:</b> Polanya hampir selalu sama: panaskan minyak, baru masukkan bumbu hingga harum.</li><li><b>Pola Urutan Memasak:</b> Bahan yang butuh waktu masak lebih lama dimasukkan lebih awal.</li></ul><h3>3. Abstraksi (Fokus pada Hal Penting)</h3><p>Kita saring informasi dan fokus hanya pada hal-hal yang paling penting:</p><ul><li><b>Informasi Penting:</b> Jenis nasi (harus nasi dingin), urutan memasak, takaran bumbu dasar.</li><li><b>Informasi Diabaikan:</b> Merek wajan, warna piring, arah mengaduk nasi.</li></ul><h3>4. Algoritma (Membuat Resep)</h3><p>Terakhir, kita menyusun resep langkah-demi-langkah yang jelas:</p><ol><li>Mulai</li><li>Siapkan wajan dan panaskan minyak.</li><li>Tumis bawang hingga harum.</li><li>Masukkan telur, orak-arik.</li><li>Masukkan nasi dingin, aduk rata.</li><li>Tambahkan kecap dan garam, aduk lagi.</li><li>Cicipi dan koreksi rasa.</li><li>Sajikan di piring.</li><li>Selesai</li></ol>` },
+                    { title: "Elemen 2: Literasi Digital", subtitle: "Menjadi Warga Digital yang Cakap dan Bijak", content: "<ul><li>Meliputi pemahaman perangkat keras, perangkat lunak, dan aplikasi TIK.</li><li>Kemampuan mengakses informasi, berkomunikasi, dan mencari solusi.</li><li>Memahami dampak media sosial, isu privasi, dan keamanan data.</li><li>Kemampuan mengidentifikasi berita palsu (hoaks) dan disinformasi.</li></ul>" },
+                    { title: "Elemen 3: Literasi & Etika KA", subtitle: "Memahami Konsep dan Dampak Kecerdasan Artifisial", content: "<ul><li>Mengetahui konsep dasar KA, cara kerjanya, serta manfaat dan dampaknya.</li><li>Mengembangkan sikap kritis dan etis dalam pemanfaatan KA.</li><li>Mengenali lanskap KA: Machine Learning, Deep Learning, dan KA Generatif.</li></ul>" },
+                    { title: "Isu Etika dalam KA", subtitle: "Tantangan yang Perlu Diwaspadai", content: "<ul><li><b>Bias:</b> Sistem KA dapat mereplikasi bias yang ada pada data latihannya (misal: bias demografi).</li><li><b>Privasi:</b> Pengolahan data pribadi dalam jumlah besar menimbulkan risiko keamanan.</li><li><b>Tanggung Jawab:</b> Siapa yang bertanggung jawab jika KA membuat kesalahan?</li><li><b>Hak Cipta:</b> Pemanfaatan karya berhak cipta dalam melatih model KA generatif.</li></ul>" },
+                    { title: "Elemen 4: Pemanfaatan & Pengembangan KA", subtitle: "Dari Pengguna Menjadi Kreator", content: "<ul><li>Kemampuan memanfaatkan perangkat KA untuk menyelesaikan masalah dan meningkatkan efisiensi.</li><li>Di tingkat lanjut, siswa didorong untuk menciptakan dan memperbaiki sistem KA sederhana.</li><li>Contoh: Menggunakan KA generatif untuk kreasi seni, atau merancang sistem rekomendasi sederhana.</li></ul>" },
+                    { title: "Elemen 5: Algoritma & Pemrograman", subtitle: "Menerjemahkan Solusi ke Bahasa Mesin", content: "<ul><li><b>Algoritma:</b> Urutan langkah logis untuk menyelesaikan masalah. Dapat direpresentasikan dalam tulisan, flowchart, atau pseudocode.</li><li><b>Pemrograman:</b> Proses mengubah algoritma menjadi kode yang dapat dieksekusi komputer menggunakan bahasa pemrograman (Python, C++, dll).</li></ul>" },
+                    { title: "Elemen 6: Analisis Data", subtitle: "Mengubah Data Menjadi Wawasan", content: "<ul><li>Kemampuan menstrukturkan, memproses, dan menyajikan data.</li><li>Memahami hierarki: Data → Informasi → Pengetahuan → Wawasan → Kebijaksanaan.</li><li>Proses ini mendukung pengambilan keputusan yang berbasis bukti.</li></ul>" },
+                    { title: "Jenis-jenis Analisis Data", subtitle: "Memahami Data dari Berbagai Sudut Pandang", content: "<ol><li><b>Deskriptif:</b> Menggambarkan apa yang terjadi.</li><li><b>Diagnostik:</b> Menjelaskan mengapa sesuatu terjadi.</li><li><b>Prediktif:</b> Meramalkan apa yang akan terjadi di masa depan.</li><li><b>Preskriptif:</b> Menentukan langkah optimal yang harus diambil.</li></ol>" },
+                    { title: "KKA & Profil Lulusan", subtitle: "Kontribusi pada Pengembangan Karakter Siswa", content: "<h3>Mata pelajaran KKA berkontribusi mewujudkan profil lulusan yang memiliki:</h3><ul><li>Nalar kritis.</li><li>Kemampuan bekerja mandiri.</li><li>Keterampilan berkomunikasi dan berkolaborasi.</li><li>Kewargaan digital yang beretika dan bertanggung jawab.</li></ul>" },
+                    { title: "Posisi KKA vs Informatika", subtitle: "Sinergi dalam Kurikulum Digital", content: "<ul><li><b>Informatika:</b> Mapel wajib di kelas 7-10 dan pilihan di 11-12, memberikan fondasi umum.</li><li><b>KKA:</b> Mapel pilihan dari kelas 5-12 untuk sekolah yang memiliki kapasitas, memberikan pendalaman spesifik.</li><li><b>Sinergi:</b> Pendidik perlu memastikan tidak ada materi yang berulang, khususnya pada elemen Berpikir Komputasional dan Literasi Digital. KKA diarahkan untuk eksplorasi lebih praktis.</li></ul>" },
+                    { title: "Alur Pelatihan Modul 1", subtitle: "Tahapan Pembelajaran Menggunakan Taksonomi SOLO", content: "<p>Pelatihan ini menggunakan pendekatan Taksonomi SOLO untuk memastikan pemahaman yang mendalam, mulai dari tahap memahami hingga merefleksi.</p><ul><li><b>Memahami:</b> Menjelaskan ruang lingkup, rasional, dan elemen KKA.</li><li><b>Mengaplikasi:</b> Membuat tujuan pembelajaran yang terintegrasi dengan Profil Lulusan.</li><li><b>Merefleksi:</b> Diskusi kelompok mengenai peluang dan tantangan implementasi.</li></ul>" },
+                    { title: "Refleksi Modul 1", subtitle: "Pertanyaan untuk Pemikiran Lebih Lanjut", content: "<ul><li>Bagaimana Anda akan mengadaptasi elemen-elemen KKA ini ke dalam konteks kelas Anda?</li><li>Tantangan terbesar apa yang Anda antisipasi dalam mengajarkan etika KA kepada siswa?</li><li>Aktivitas <i>unplugged</i> apa yang bisa Anda rancang untuk mengajarkan konsep algoritma?</li></ul>", geminiFeature: "activityGenerator" },
+                    { title: "Rangkuman Modul 1", subtitle: "Poin-Poin Kunci", content: "<ul><li>Mata pelajaran Koding dan KA dirancang untuk membekali siswa dengan keterampilan abad ke-21 yang esensial.</li><li>Pembelajaran ini bersifat holistik, mengintegrasikan kompetensi teknis dengan pengembangan karakter dan etika.</li><li>Kurikulum KKA mencakup enam elemen utama yang saling terkait, dari berpikir komputasional hingga analisis data.</li><li>Implementasinya harus disesuaikan dengan kapasitas sekolah dan bersinergi dengan mata pelajaran Informatika.</li></ul>" },
+                    { title: "Tugas Modul 1", subtitle: "Lembar Kerja 1", content: "<h3>Aktivitas:</h3><ul><li>Menjelaskan ruang lingkup, rasional, tujuan, karakteristik, dan elemen KKA.</li><li>Menjelaskan konsep keilmuan dan implementasi KKA di sekolah.</li><li>Membuat ringkasan atau peta konsep dari materi Modul 1.</li></ul><h3>Tagihan:</h3><p>LK 1: Ringkasan Modul 1 yang diunggah dalam format yang ditentukan.</p>", isTask: true },
+                ]
+            },
+            {
+                title: "Aplikasi & Kolaborasi KA",
+                slides: [
+                    { title: "Judul", subtitle: "Modul 2: Pengoperasian, Pengaplikasian, dan Kolaborasi Perangkat Kecerdasan Artifisial", content: "<ul><li>Bimbingan Teknis Guru Koding dan Kecerdasan Artifisial Jenjang SMA/SMK</li></ul>" },
+                    { title: "Tujuan Pelatihan", subtitle: "Apa yang akan dicapai dalam Modul 2", content: "<ul><li>Mengenali dan menerapkan perangkat KA pada area pemanfaatan umum dan khusus.</li><li>Memilih perangkat KA yang sesuai untuk tujuan kolaborasi.</li><li>Menerapkan kolaborasi dengan perangkat KA untuk menyelesaikan tugas spesifik.</li><li>Menganalisis model dan metode pembelajaran yang tepat untuk mengintegrasikan KA.</li></ul>" },
+                    { title: "Mengenal Kecerdasan Artifisial (KA)", subtitle: "Definisi dan Evolusi", content: "<ul><li><b>Definisi:</b> Ilmu dan rekayasa dalam menciptakan mesin cerdas yang dapat meniru kecerdasan manusia.</li><li><b>Evolusi KA:</b> Era Simbolik → Pembelajaran Mesin (ML) → Deep Learning.</li></ul>" },
+                    { title: "Kategori KA: Kapabilitas", subtitle: "Tingkatan Kecerdasan Buatan", content: "<ol><li><b>ANI (Artificial Narrow Intelligence):</b> KA 'lemah' untuk tugas spesifik (saat ini).</li><li><b>AGI (Artificial General Intelligence):</b> KA setingkat manusia (masa depan).</li><li><b>ASI (Artificial Superintelligence):</b> KA yang melampaui kecerdasan manusia (teoretis).</li></ol>" },
+                    { title: "Kategori KA: Fungsionalitas", subtitle: "Bagaimana KA Berinteraksi dengan Data", content: "<ul><li><b>Reactive Machine:</b> Tanpa memori, hanya bereaksi pada data saat ini (Contoh: IBM Deep Blue).</li><li><b>Limited Memory:</b> Menggunakan data lampau untuk keputusan jangka pendek (Contoh: ChatGPT, mobil otonom).</li></ul>" },
+                    { title: "Cara Kerja KA", subtitle: "Siklus Input, Proses, dan Output", content: "<h3>Tiga Tahapan Utama:</h3><ol><li><b>Masukan (Data):</b> Menerima data masukan (teks, gambar, suara).</li><li><b>Proses (Pelatihan):</b> Algoritma mengenali pola dari data latih.</li><li><b>Luaran (Output):</b> Menghasilkan keputusan atau konten baru.</li></ol>" },
+                    { title: "Komponen Sistem KA", subtitle: "Perangkat Keras dan Perangkat Lunak", content: "<ul><li><b>Hardware:</b> CPU, GPU, dan TPU sebagai 'otak' sistem.</li><li><b>Software:</b> Algoritma pembelajaran, framework, dan library (TensorFlow, PyTorch).</li></ul>" },
+                    { title: "Aplikasi Umum: Ekonomi & Bisnis", subtitle: "Meningkatkan Efisiensi dan Personalisasi", content: "<ul><li>Analisis data pasar secara prediktif.</li><li>Sistem rekomendasi cerdas di e-commerce.</li><li>Chatbot berbasis NLP untuk layanan pelanggan 24/7.</li></ul>" },
+                    { title: "Aplikasi Umum: Pemerintahan & Pendidikan", subtitle: "Modernisasi Layanan Publik dan Pembelajaran", content: "<ul><li><b>Pemerintahan:</b> Perencanaan <i>smart city</i>, manajemen bencana.</li><li><b>Pendidikan:</b> Sistem pembelajaran adaptif, <i>learning analytics</i>.</li></ul>" },
+                    { title: "Aplikasi Umum: Kesehatan & Industri", subtitle: "Revolusi Diagnostik dan Produksi", content: "<ul><li><b>Kesehatan:</b> Diagnostik citra medis, prediksi risiko penyakit.</li><li><b>Industri:</b> Otomatisasi produksi, pemeliharaan prediktif.</li></ul>" },
+                    { title: "Aplikasi Khusus: Teknologi & Rekayasa", subtitle: "Inovasi untuk Industri Vokasi", content: "<ul><li><b>Digital Twin:</b> Replika digital dari pabrik untuk simulasi.</li><li><b>AGV (Autonomous Guided Vehicles):</b> Robot logistik otonom.</li><li><b>Predictive Maintenance:</b> Memprediksi kerusakan mesin.</li></ul>" },
+                    { title: "Aplikasi Khusus: TIK & Seni", subtitle: "Keamanan Siber dan Kreativitas Digital", content: "<ul><li><b>TIK:</b> Deteksi anomali jaringan untuk keamanan siber.</li><li><b>Seni & Kerajinan:</b> Desain generatif untuk pola kain, restorasi digital karya seni.</li></ul>" },
+                    { title: "Aplikasi Khusus: Agribisnis & Kuliner", subtitle: "Pertanian Presisi dan Inovasi Pangan", content: "<ul><li><b>Agribisnis:</b> Monitoring lahan dengan drone, irigasi pintar.</li><li><b>Kuliner:</b> KA yang menciptakan resep baru berdasarkan analisis bahan.</li></ul>" },
+                    { title: "Profesi di Bidang KA", subtitle: "Peluang Karir di Era Kecerdasan Artifisial", content: "<ul><li>Data Scientist</li><li>Machine Learning Engineer</li><li>AI Research Scientist</li><li>Robotics Engineer</li><li>AI Ethics Specialist</li></ul>" },
+                    { title: "Proyeksi Pertumbuhan Profesi", subtitle: "Laporan 'Future of Jobs' oleh World Economic Forum", content: "<p>Laporan WEF memproyeksikan profesi terkait KA sebagai kelompok pekerjaan dengan pertumbuhan tercepat, sementara pekerjaan administratif mengalami penurunan.</p>" },
+                    { title: "Kolaborasi Manusia-KA", subtitle: "Sinergi untuk Hasil Optimal", content: "<p>Kolaborasi manusia-KA adalah tentang augmentasi (peningkatan) kemampuan manusia, bukan penggantian.</p>" },
+                    { title: "Model Kolaborasi Kai-Fu Lee", subtitle: "Empat Kuadran Sinergi Manusia dan Mesin", content: "<ol><li><b>AI di dalam Manusia:</b> KA di balik layar, manusia di depan.</li><li><b>Manusia + AI:</b> Manusia memimpin, KA membantu.</li><li><b>AI <> Manusia:</b> Keduanya bekerja berdampingan.</li><li><b>AI Penuh:</b> KA bekerja mandiri.</li></ol>" },
+                    { title: "Refleksi Modul 2", subtitle: "Pertanyaan untuk Pemikiran Lebih Lanjut", content: "<ul><li>Aplikasi KA mana yang paling berpotensi diintegrasikan dalam mata pelajaran Anda?</li><li>Bagaimana menyeimbangkan penggunaan KA tanpa membuat siswa terlalu bergantung?</li></ul>" },
+                    { title: "Rangkuman & Tantangan", subtitle: "Poin Kunci Modul 2", content: "<h3>Kesimpulan</h3><ul><li>Perangkat KA telah diaplikasikan secara luas untuk efisiensi dan inovasi.</li><li>Kolaborasi manusia-KA adalah tentang sinergi.</li></ul><h3>Tantangan Utama</h3><ul><li>Halusinasi Data</li><li>Bias Algoritma</li><li>Ketergantungan Berlebih</li></ul>" },
+                    { title: "Tugas Modul 2", subtitle: "Lembar Kerja 2.1, 2.2, dan 2.3", content: "<ul><li><b>LK 2.1: Peta Konsep Pemanfaatan KA:</b> Membuat peta konsep visual.</li><li><b>LK 2.2: Mengaplikasikan 3 Jenis Perangkat KA:</b> Menyunting teks, membuat soal, dan mengolah data nilai.</li><li><b>LK 2.3: Membuat Rencana Pembelajaran Kolaboratif:</b> Merancang RPP dengan Pembelajaran Mendalam dan KA.</li></ul>", isTask: true },
+                ]
+            },
+            {
+                title: "Rekayasa Prompt & Konten Kreatif",
+                slides: [
+                    { title: "Judul", subtitle: "Modul 3: Rekayasa Prompt untuk Kreasi Konten", content: "<ul><li>Bimbingan Teknis Guru Koding dan Kecerdasan Artifisial Jenjang SMA/SMK</li></ul>" },
+                    { title: "Tujuan Pelatihan", subtitle: "Apa yang akan dicapai dalam Modul 3", content: "<ul><li>Menjelaskan konsep dasar KA generatif dan peran <i>prompt</i>.</li><li>Menerapkan berpikir kreatif untuk membangun proyek menggunakan KA.</li><li>Menghasilkan proyek konten kreatif berbasis KA yang siap digunakan.</li><li>Merefleksikan isu-isu etika dalam kreasi konten KA.</li></ul>" },
+                    { title: "Konsep Dasar KA Generatif", subtitle: "Apa itu Kecerdasan Artifisial (KA) Generatif?", content: "<ul><li><b>Definisi:</b> Cabang KA yang berfokus pada <b>pembuatan konten baru</b> (teks, gambar, musik) dengan mempelajari pola dari data besar.</li><li><b>Cara Kerja:</b> Model seperti GPT atau DALL-E menggunakan arsitektur <i>Transformer</i> untuk menghasilkan output yang menyerupai data aslinya.</li><li><b>Penting Diketahui:</b> KA generatif tidak 'berpikir' dan sering mengalami <b>halusinasi</b> (menciptakan informasi palsu).</li></ul>" },
+                    { title: "Peran dan Fungsi Prompt", subtitle: "Prompt: Jembatan Komunikasi Manusia & KA", content: "<ul><li><b>Definisi:</b> Perintah atau instruksi yang diberikan kepada model KA untuk menghasilkan keluaran yang diinginkan.</li><li><b>Fungsi Utama:</b><ol><li>Mengatur Konteks</li><li>Memberikan Instruksi Spesifik</li><li>Menentukan Format Output</li><li>Memfasilitasi Kreativitas</li></ol></li></ul>" },
+                    { title: "Unsur-Unsur Prompt Efektif", subtitle: "Membangun Prompt yang Berkualitas", content: "<ol><li><b>Instruksi (Task):</b> Inti perintah yang jelas.</li><li><b>Konteks (Background):</b> Informasi latar belakang.</li><li><b>Peran (Role Specification):</b> Meminta KA berperan sebagai ahli tertentu.</li><li><b>Contoh (Examples):</b> Demonstrasi output yang diharapkan.</li><li><b>Format Output:</b> Spesifikasi struktur (daftar, tabel).</li></ol>" },
+                    { title: "Strategi Penyusunan Prompt", subtitle: "Zero-Shot vs. Few-Shot Prompting", content: "<ul><li><b>Zero-Shot Prompting:</b> Memberikan instruksi langsung <b>tanpa contoh tambahan</b>. Cocok untuk tugas sederhana.</li><li><b>Few-Shot Prompting:</b> Memberikan <b>beberapa contoh</b> yang menunjukkan format atau gaya yang diinginkan. Sangat efektif untuk tugas kompleks dan meningkatkan akurasi.</li></ul>" },
+                    { title: "Analisis dan Evaluasi Output", subtitle: "Memastikan Kualitas Hasil dari KA Generatif", content: "<p>Proses evaluasi output KA sangat penting dan mencakup:</p><ol><li><b>Verifikasi Akurasi:</b> Memastikan informasi sesuai fakta.</li><li><b>Penilaian Relevansi:</b> Mengevaluasi kesesuaian output dengan prompt.</li><li><b>Mengukur Kreativitas:</b> Menilai kemampuan model menghasilkan ide inovatif.</li><li><b>Mengidentifikasi Bias:</b> Memeriksa adanya bias gender, etnis, atau stereotip.</li></ol>" },
+                    { title: "Kesimpulan & Isu Etika", subtitle: "Rangkuman Modul 3", content: "<h3>Kesimpulan</h3><ul><li>Rekayasa prompt adalah keterampilan kunci untuk memaksimalkan potensi KA generatif.</li><li>Proses iterasi dan evaluasi kritis sangat penting untuk memastikan kualitas.</li></ul><h3>Isu Etika</h3><ul><li>Plagiarisme & Hak Cipta</li><li>Bias & Ketidakberpihakan</li><li>Transparansi Penggunaan</li><li>Akuntabilitas</li></ul>" },
+                    { title: "Refleksi Modul 3", subtitle: "Pertanyaan untuk Pemikiran", content: "<ul><li>Bagaimana Anda akan mengajarkan siswa untuk membuat prompt yang efektif dan etis?</li><li>Strategi apa yang akan Anda gunakan untuk memverifikasi akurasi informasi yang dihasilkan oleh KA di kelas?</li></ul>", geminiFeature: "promptEnhancer" },
+                    { title: "Tugas Modul 3", subtitle: "Lembar Kerja 3.1 & 3.2", content: "<ul><li><b>LK 3.1: Membuat Prompt Multi-Langkah:</b> Merancang serangkaian prompt untuk proyek kompleks (misal: RPP), lalu melakukan revisi iteratif.</li><li><b>LK 3.2: Memproduksi Konten Kreatif:</b> Menggunakan KA dari brainstorming hingga produksi konten, dengan fokus pada penyuntingan manual dan evaluasi etis.</li></ul>", isTask: true },
+                ]
+            },
+            {
+                title: "Pemrograman KA & Model Bahasa",
+                slides: [
+                    { title: "Judul", subtitle: "Modul 4: Pemrograman Kecerdasan Artifisial", content: "<ul><li>Bimbingan Teknis Guru Koding dan Kecerdasan Artifisial Jenjang SMA/SMK</li></ul>" },
+                    { title: "Tujuan Pelatihan", subtitle: "Apa yang akan dicapai dalam Modul 4", content: "<ul><li>Menjelaskan konsep dasar pemrograman KA.</li><li>Menerapkan <i>library</i> KA populer untuk menghasilkan aplikasi sederhana.</li><li>Menjelaskan konsep dasar, arsitektur, dan cara kerja <i>Large Language Model</i> (LLM).</li><li>Mengintegrasikan aplikasi KA dengan model bahasa besar (LLM).</li></ul>" },
+                    { title: "Dasar Pemrograman KA", subtitle: "Fondasi untuk Membangun Aplikasi Cerdas", content: "<ul><li><b>Spektrum KA:</b> Mencakup lebih dari sekadar <i>machine learning</i> (ML), termasuk juga <i>rule-based systems</i>.</li><li><b>Komponen Penting:</b> Machine Learning (ML), Deep Learning, NLP, dan Computer Vision.</li></ul>" },
+                    { title: "Bahasa Pemrograman & IDE untuk KA", subtitle: "Perangkat untuk Mengembangkan Aplikasi KA", content: "<h3>Bahasa Pemrograman Populer</h3><ul><li><b>Python:</b> Pilihan utama karena kemudahan dan kelengkapan pustaka.</li><li><b>R:</b> Efektif untuk analisis statistik.</li></ul><h3>IDE Populer</h3><ul><li>Jupyter Notebook / Google Colaboratory</li><li>Visual Studio Code</li></ul>" },
+                    { title: "Dasar-Dasar Python untuk KA", subtitle: "Konsep Fundamental Pemrograman", content: "<ol><li><b>Variabel dan Tipe Data:</b> Integer, Float, String, Boolean.</li><li><b>Struktur Kontrol:</b> Percabangan (if-else) dan Perulangan (for, while).</li><li><b>Fungsi:</b> Blok kode yang dapat digunakan ulang (<i>reuseable</i>).</li><li><b>Struktur Data:</b> List, Dictionary, Tuple.</li></ol>" },
+                    { title: "Jenis-Jenis Machine Learning", subtitle: "Pendekatan Utama dalam Melatih Model", content: "<ol><li><b>Supervised Learning:</b> Menggunakan <b>dataset berlabel</b> (contoh: klasifikasi, regresi).</li><li><b>Unsupervised Learning:</b> Menggunakan <b>data tidak berlabel</b> (contoh: clustering).</li><li><b>Reinforcement Learning:</b> Belajar melalui 'trial and error' dengan <i>feedback</i>.</li></ol>" },
+                    { title: "Proses Training dan Testing Model", subtitle: "Membangun dan Mengevaluasi Model ML", content: "<ul><li><b>Data Training (Data Latih):</b> Digunakan untuk <b>melatih model</b>.</li><li><b>Data Testing (Data Uji):</b> Digunakan untuk <b>mengevaluasi kinerja model</b> pada data baru.</li><li><b>Pentingnya Pemisahan:</b> Untuk menghindari bias dan mendapatkan evaluasi kinerja yang jujur.</li></ul>" },
+                    { title: "Pengenalan Large Language Models (LLM)", subtitle: "Otak di Balik KA Generatif", content: "<ul><li>Sistem berbasis jaringan saraf tiruan yang dilatih untuk memahami dan menghasilkan bahasa alami.</li><li>Dibangun di atas arsitektur <b>Transformer</b> yang revolusioner.</li><li>Memerlukan proses training yang intensif pada data teks dalam jumlah masif.</li></ul>" },
+                    { title: "Kesimpulan & Refleksi", subtitle: "Rangkuman Modul 4", content: "<h3>Kesimpulan</h3><ul><li>Pemrograman KA membutuhkan pemahaman kuat tentang dasar-dasar Python, struktur data, dan jenis-jenis ML.</li><li>Proses training dan testing adalah tahapan krusial untuk memastikan model bekerja dengan baik.</li></ul><h3>Refleksi</h3><p>Bagaimana Anda dapat menyederhanakan konsep seperti 'training' dan 'testing' untuk siswa SMA?</p>" },
+                    { title: "Tugas Modul 4", subtitle: "Lembar Kerja 4.1 & 4.2", content: "<ul><li><b>LK 4.1: Proyek Pemrograman Aplikasi KA:</b> Membangun aplikasi sederhana berbasis <i>supervised/unsupervised learning</i> menggunakan dataset.</li><li><b>LK 4.2: Memadukan Aplikasi KA dan LLM:</b> Mengintegrasikan aplikasi KA dengan <i>Large Language Model</i> (LLM) menggunakan Hugging Face API.</li></ul>", isTask: true },
+                ]
+            },
+            {
+                title: "Pedagogi & Desain Pembelajaran",
+                slides: [
+                    { title: "Judul", subtitle: "Modul 5: Modul Pedagogik Koding dan Kecerdasan Artifisial", content: "<ul><li>Prinsip Pedagogik, HOTS, TPACK, Pembelajaran Mendalam, dan Desain Pembelajaran</li></ul>" },
+                    { title: "Tujuan Pembelajaran Modul", subtitle: "Tujuan Pembelajaran Pedagogik", content: "<ul><li>Merancang pengalaman belajar dengan pendekatan <b>Pembelajaran Mendalam</b>.</li><li>Mengimplementasikan model pembelajaran Koding dan KA secara <i>plugged</i> atau <i>unplugged</i>.</li><li>Mengembangkan perencanaan pembelajaran berbasis <b>HOTS (High Order Thinking Skills)</b>.</li><li>Mengintegrasikan kerangka kerja <b>TPACK</b> dalam perencanaan pembelajaran.</li></ul>" },
+                    { title: "Prinsip-Prinsip Pedagogik", subtitle: "Fondasi Mengajar yang Efektif", content: "<p>Enam prinsip pedagogik yang harus dikuasai guru:</p><ol><li>Memahami Karakteristik Peserta Didik</li><li>Memahami Teori Belajar</li><li>Menguasai Konten dan Kurikulum</li><li>Memahami Potensi Peserta Didik</li><li>Menguasai Keterampilan Komunikasi</li><li>Memahami Proses Penilaian dan Evaluasi</li></ol>" },
+                    { title: "Pembelajaran Berbasis HOTS", subtitle: "Mengasah Keterampilan Berpikir Tingkat Tinggi", content: "<ul><li><b>Definisi HOTS:</b> Proses berpikir kompleks dalam menganalisis, mengevaluasi, dan mencipta.</li><li><b>Taksonomi Bloom (HOTS):</b> Menganalisis, Mengevaluasi, dan Mencipta.</li><li><b>Fungsionalitas HOTS:</b> Sebagai Transfer Pengetahuan, Pemecahan Masalah, dan Berpikir Kritis & Kreatif.</li></ul>" },
+                    { title: "Kerangka Kerja TPACK", subtitle: "Integrasi Teknologi, Pedagogi, dan Konten", content: "<ul><li><b>Definisi TPACK:</b> Pengetahuan yang dibutuhkan guru untuk mengintegrasikan teknologi secara efektif.</li><li><b>Tiga Komponen Utama:</b> Content Knowledge (CK), Pedagogical Knowledge (PK), Technological Knowledge (TK).</li><li><b>TPACK</b> adalah sinergi dari ketiganya beserta irisannya (PCK, TCK, TPK).</li></ul>" },
+                    { title: "Pendekatan Pembelajaran Mendalam (PM)", subtitle: "Menciptakan Pembelajaran yang Bermakna", content: "<ul><li><b>Definisi PM:</b> Pendekatan yang menekankan pemahaman konsep yang bermakna, bukan sekadar menghafal.</li><li><b>Tiga Elemen Utama PM:</b><ol><li><b>Meaningful Learning (Bermakna):</b> Relevan dengan kehidupan siswa.</li><li><b>Mindful Learning (Berkesadaran):</b> Siswa fokus dan terlibat aktif (metakognisi).</li><li><b>Joyful Learning (Menggembirakan):</b> Pengalaman belajar yang positif dan interaktif.</li></ol></li></ul>" },
+                    { title: "Merancang Pembelajaran", subtitle: "Dari CP ke ATP dan Asesmen", content: "<ol><li><b>Memahami Capaian Pembelajaran (CP):</b> Kompetensi akhir fase.</li><li><b>Merumuskan Tujuan Pembelajaran (TP):</b> Turunan CP yang operasional.</li><li><b>Menyusun Alur Tujuan Pembelajaran (ATP):</b> Rangkaian TP yang logis.</li><li><b>Merancang Pembelajaran dan Asesmen:</b> Menentukan langkah (Pendahuluan, Inti, Penutup) dan jenis asesmen (Formatif & Sumatif).</li></ol>" },
+                    { title: "Kesimpulan", subtitle: "Rangkuman Modul 5", content: "<ul><li>Mengajar efektif membutuhkan penguasaan prinsip pedagogik.</li><li>Pembelajaran modern harus berorientasi pada <b>HOTS</b> dan diintegrasikan dengan teknologi melalui kerangka <b>TPACK</b>.</li><li><b>Pembelajaran Mendalam</b> menciptakan pengalaman belajar yang holistik dan relevan.</li><li>Perancangan pembelajaran yang sistematis adalah kunci keberhasilan implementasi kurikulum.</li></ul>" },
+                    { title: "Refleksi Modul 5", subtitle: "Pertanyaan untuk Pemikiran", content: "<ul><li>Bagaimana Anda akan memastikan bahwa penggunaan teknologi dalam kerangka TPACK benar-benar meningkatkan pemahaman siswa, bukan hanya sebagai 'gimmick'?</li><li>Strategi apa yang akan Anda terapkan untuk menciptakan suasana 'Joyful Learning' dalam materi Koding yang mungkin dianggap sulit?</li></ul>" },
+                    { title: "Tugas Modul 5", subtitle: "Proyek Microteaching/Peerteaching", content: "<h3>Tujuan:</h3><p>Memberikan kesempatan kepada guru untuk berlatih dan menyempurnakan keterampilan mengajar.</p><h3>Aktivitas:</h3><ol><li>Mempersiapkan Rencana Pembelajaran (RPP/Modul Ajar) berdasarkan prinsip-prinsip yang telah dipelajari.</li><li>Melaksanakan Microteaching (15-45 menit).</li><li>Evaluasi dan Refleksi berdasarkan umpan balik.</li></ol><h3>Tagihan:</h3><p>LK Refleksi dan Evaluasi Microteaching.</p>", isTask: true, geminiFeature: "feedbackGenerator" },
+                ]
+            }
+        ];
+
+        // --- Variabel State & Konfigurasi ---
+        let currentModuleIndex = 0;
+        let currentSlideIndex = 0;
+        let targetedModuleForPassword = 0;
+        let isNavigating = false; // Cooldown state
+        let isTrainer = false; // Trainer flag
+
+        const passwords = {
+            1: "APLIKASI24",
+            2: "PROMPT24",
+            3: "PROGRAM24",
+            4: "PEDAGOGI24"
+        };
+        const pagePasswords = {
+            pelatih: "PELATIH2025",
+            peserta: "PESERTA2025"
+        };
+
+        const moduleProgress = {
+            0: { unlocked: true, taskCompleted: false, slidesViewed: new Set() },
+            1: { unlocked: false, taskCompleted: false, slidesViewed: new Set() },
+            2: { unlocked: false, taskCompleted: false, slidesViewed: new Set() },
+            3: { unlocked: false, taskCompleted: false, slidesViewed: new Set() },
+            4: { unlocked: false, taskCompleted: false, slidesViewed: new Set() },
+        };
+
+        // --- Elemen DOM ---
+        const loginScreen = document.getElementById('login-screen');
+        const mainContent = document.getElementById('main-content');
+        const pagePasswordInput = document.getElementById('page-password-input');
+        const pagePasswordError = document.getElementById('page-password-error');
+        const pageLoginButton = document.getElementById('page-login-button');
+
+        const moduleTabsContainer = document.getElementById('module-tabs');
+        const slideTitleEl = document.getElementById('slide-title');
+        const slideSubtitleEl = document.getElementById('slide-subtitle');
+        const slideContentEl = document.getElementById('slide-content');
+        const slideCounterEl = document.getElementById('slide-counter');
+        const prevBtn = document.getElementById('prev-slide');
+        const nextBtn = document.getElementById('next-slide');
+        const slideContainer = document.getElementById('slide-container');
+        const progressBarFill = document.getElementById('progress-bar-fill');
+        
+        // Elemen Modal Submit
+        const submissionModal = document.getElementById('submission-modal');
+        const modalBackdropSubmit = document.getElementById('modal-backdrop-submit');
+        const modalContentSubmit = document.getElementById('modal-content-submit');
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const fileInfo = document.getElementById('file-info');
+        const fileNameEl = document.getElementById('file-name');
+        const removeFileBtn = document.getElementById('remove-file');
+        const progressContainer = document.getElementById('progress-container');
+        const uploadProgress = document.getElementById('upload-progress');
+        const cancelSubmissionBtn = document.getElementById('cancel-submission');
+        const submitBtn = document.getElementById('submit-button');
+        
+        // Elemen Modal Password
+        const passwordModal = document.getElementById('password-modal');
+        const modalBackdropPassword = document.getElementById('modal-backdrop-password');
+        const modalContentPassword = document.getElementById('modal-content-password');
+        const passwordInput = document.getElementById('password-input');
+        const passwordError = document.getElementById('password-error');
+        const cancelPasswordBtn = document.getElementById('cancel-password');
+        const submitPasswordBtn = document.getElementById('submit-password');
+
+        // Elemen Notifikasi
+        const notification = document.getElementById('notification');
+        const notificationIcon = document.getElementById('notification-icon');
+        const notificationTitle = document.getElementById('notification-title');
+        const notificationMessage = document.getElementById('notification-message');
+        
+        // Elemen Modal Gemini
+        const geminiModal = document.getElementById('gemini-modal');
+        const geminiModalBackdrop = document.getElementById('gemini-modal-backdrop');
+        const geminiModalContent = document.getElementById('gemini-modal-content');
+        const geminiModalTitle = document.getElementById('gemini-modal-title');
+        const geminiModalDescription = document.getElementById('gemini-modal-description');
+        const geminiInputArea = document.getElementById('gemini-input-area');
+        const geminiOutputArea = document.getElementById('gemini-output-area');
+        const geminiLoading = document.getElementById('gemini-loading');
+        const geminiOutputContent = document.getElementById('gemini-output-content');
+        const geminiModalClose = document.getElementById('gemini-modal-close');
+        const geminiModalGenerate = document.getElementById('gemini-modal-generate');
+
+        // --- Fungsi ---
+        
+        function checkPagePassword() {
+            const enteredPass = pagePasswordInput.value.toUpperCase();
+            if (enteredPass === pagePasswords.pelatih) {
+                isTrainer = true;
+                Object.keys(moduleProgress).forEach(key => {
+                    moduleProgress[key].unlocked = true;
+                });
+                startPresentation();
+            } else if (enteredPass === pagePasswords.peserta) {
+                isTrainer = false;
+                startPresentation();
+            } else {
+                pagePasswordError.classList.remove('hidden');
+                pagePasswordInput.classList.add('shake-anim');
+                setTimeout(() => pagePasswordInput.classList.remove('shake-anim'), 500);
+            }
+        }
+
+        function startPresentation() {
+            loginScreen.style.animation = 'fade-out 0.5s ease-out forwards';
+            setTimeout(() => {
+                loginScreen.classList.add('hidden');
+                mainContent.classList.remove('hidden');
+                mainContent.style.animation = 'fade-in 0.5s ease-in forwards';
+                initializePresentation();
+            }, 500);
+        }
+
+        function renderModuleTabs() {
+            moduleTabsContainer.innerHTML = '';
+            presentationData.forEach((module, index) => {
+                const li = document.createElement('li');
+                li.style.animation = `fade-in-down 0.5s ease-out both`;
+                li.style.animationDelay = `${index * 100}ms`;
+
+                const button = document.createElement('button');
+                const isLocked = !moduleProgress[index].unlocked;
+                
+                let buttonClasses = `tab-button py-2.5 px-5 font-semibold rounded-lg transition-all duration-300 text-sm sm:text-base transform flex items-center gap-2 `;
+                if (isLocked) {
+                    buttonClasses += 'tab-button-locked';
+                } else if (index === currentModuleIndex) {
+                    buttonClasses += 'tab-button-active scale-105';
+                } else {
+                    buttonClasses += 'bg-white text-slate-600 hover:bg-slate-100 shadow-sm border border-slate-200 hover:-translate-y-1';
+                }
+                
+                button.className = buttonClasses;
+                button.innerHTML = `${isLocked ? '<svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd" /></svg>' : ''}<span>${module.title}</span>`;
+                button.onclick = () => selectModule(index);
+                li.appendChild(button);
+                moduleTabsContainer.appendChild(li);
+            });
+        }
+        
+        function selectModule(index) {
+            if (!moduleProgress[index].unlocked) {
+                targetedModuleForPassword = index;
+                showPasswordModal();
+                return;
+            }
+            currentModuleIndex = index;
+            currentSlideIndex = 0;
+            renderModuleTabs();
+            renderSlide();
+        }
+
+        function updateButtonStates() {
+            prevBtn.disabled = currentSlideIndex === 0;
+            nextBtn.disabled = currentSlideIndex === presentationData[currentModuleIndex].slides.length - 1;
+        }
+
+        function renderSlide() {
+            slideContainer.classList.remove('animate');
+            void slideContainer.offsetWidth; 
+
+            const module = presentationData[currentModuleIndex];
+            const slide = module.slides[currentSlideIndex];
+
+            moduleProgress[currentModuleIndex].slidesViewed.add(currentSlideIndex);
+
+            slideTitleEl.textContent = slide.title;
+            slideSubtitleEl.textContent = slide.subtitle;
+            slideContentEl.innerHTML = slide.content;
+            slideCounterEl.textContent = `Slide ${currentSlideIndex + 1} dari ${module.slides.length}`;
+            
+            updateButtonStates();
+
+            const progress = ((currentSlideIndex + 1) / module.slides.length) * 100;
+            progressBarFill.style.width = `${progress}%`;
+
+            if (slide.geminiFeature) {
+                const geminiBtn = document.createElement('button');
+                geminiBtn.className = 'mt-8 bg-gradient-to-r from-orange-500 to-amber-400 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-amber-500/50 transform hover:scale-105 transition-all duration-300';
+                geminiBtn.onclick = () => setupAndShowGeminiModal(slide.geminiFeature);
+                
+                if(slide.geminiFeature === 'activityGenerator') geminiBtn.innerHTML = '✨ Hasilkan Ide Aktivitas';
+                if(slide.geminiFeature === 'promptEnhancer') geminiBtn.innerHTML = '✨ Coba Penyempurna Prompt';
+                if(slide.geminiFeature === 'feedbackGenerator') geminiBtn.innerHTML = '✨ Dapatkan Ide Umpan Balik';
+                
+                slideContentEl.appendChild(geminiBtn);
+            }
+
+            if (slide.isTask) {
+                const submitTaskBtn = document.createElement('button');
+                submitTaskBtn.textContent = 'Submit Tugas';
+                submitTaskBtn.className = 'mt-8 bg-gradient-to-r from-orange-500 to-amber-400 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-amber-500/50 transform hover:scale-105 transition-all duration-300';
+                
+                submitTaskBtn.onclick = () => {
+                    const allSlidesViewed = module.slides.length === moduleProgress[currentModuleIndex].slidesViewed.size;
+                    if (allSlidesViewed) {
+                        showSubmissionModal();
+                    } else {
+                        showNotification('warning', 'Tugas Belum Bisa Disubmit', 'Harap lihat semua slide di modul ini terlebih dahulu.');
+                    }
+                };
+                slideContentEl.appendChild(submitTaskBtn);
+            }
+
+            slideContainer.classList.add('animate');
+        }
+
+        function showNextSlide() {
+            if (isNavigating || nextBtn.disabled) return;
+            
+            const nextSlideIndex = currentSlideIndex + 1;
+            const nextSlideAlreadyViewed = moduleProgress[currentModuleIndex].slidesViewed.has(nextSlideIndex);
+
+            if (!nextSlideAlreadyViewed && !isTrainer) {
+                isNavigating = true;
+                prevBtn.disabled = true;
+                nextBtn.disabled = true;
+            }
+
+            if (currentSlideIndex < presentationData[currentModuleIndex].slides.length - 1) {
+                currentSlideIndex++;
+                renderSlide();
+            }
+
+            if (!nextSlideAlreadyViewed && !isTrainer) {
+                setTimeout(() => {
+                    isNavigating = false;
+                    updateButtonStates();
+                }, 2000);
+            }
+        }
+
+        function showPrevSlide() {
+            if (prevBtn.disabled) return;
+
+            if (currentSlideIndex > 0) {
+                currentSlideIndex--;
+                renderSlide();
+            }
+        }
+        
+        function showModal(modalEl, backdropEl, contentEl) {
+            modalEl.classList.remove('hidden');
+            setTimeout(() => {
+                backdropEl.classList.remove('opacity-0');
+                contentEl.classList.remove('scale-95', 'opacity-0');
+                contentEl.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function closeModal(modalEl, backdropEl, contentEl) {
+            contentEl.classList.add('scale-95', 'opacity-0');
+            backdropEl.classList.add('opacity-0');
+            setTimeout(() => {
+                modalEl.classList.add('hidden');
+            }, 300);
+        }
+        
+        function showSubmissionModal() { showModal(submissionModal, modalBackdropSubmit, modalContentSubmit); }
+        function closeSubmissionModal() { closeModal(submissionModal, modalBackdropSubmit, modalContentSubmit); resetSubmissionModalState(); }
+        function showPasswordModal() { showModal(passwordModal, modalBackdropPassword, modalContentPassword); }
+        function closePasswordModal() { closeModal(passwordModal, modalBackdropPassword, modalContentPassword); passwordInput.value = ''; passwordError.classList.add('hidden'); }
+
+        function handleFileSelect(file) {
+            if (file) {
+                fileNameEl.textContent = file.name;
+                fileInfo.classList.remove('hidden');
+                submitBtn.disabled = false;
+            }
+        }
+
+        function resetSubmissionModalState() {
+            fileInput.value = '';
+            fileInfo.classList.add('hidden');
+            fileNameEl.textContent = '';
+            submitBtn.disabled = true;
+            progressContainer.classList.add('hidden');
+            uploadProgress.style.width = '0%';
+        }
+        
+        function simulateUpload() {
+            submitBtn.disabled = true;
+            cancelSubmissionBtn.disabled = true;
+            progressContainer.classList.remove('hidden');
+            
+            let width = 0;
+            const interval = setInterval(() => {
+                width += 10;
+                uploadProgress.style.width = `${width}%`;
+                if (width >= 100) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        closeSubmissionModal();
+                        moduleProgress[currentModuleIndex].taskCompleted = true;
+                        unlockNextModule();
+                    }, 500);
+                }
+            }, 200);
+        }
+
+        function unlockNextModule() {
+            const nextModuleIndex = currentModuleIndex + 1;
+            if (nextModuleIndex < presentationData.length) {
+                moduleProgress[nextModuleIndex].unlocked = true;
+                showNotification('success', `Modul ${nextModuleIndex + 1} Terbuka!`, 'Anda sekarang dapat melanjutkan ke modul berikutnya.');
+                renderModuleTabs();
+            } else {
+                 showNotification('success', 'Selamat!', 'Anda telah menyelesaikan semua modul.');
+            }
+        }
+
+        function checkPassword() {
+            const enteredPassword = passwordInput.value;
+            if (passwords[targetedModuleForPassword] && enteredPassword.toUpperCase() === passwords[targetedModuleForPassword]) {
+                moduleProgress[targetedModuleForPassword].unlocked = true;
+                closePasswordModal();
+                showNotification('success', `Modul ${targetedModuleForPassword + 1} Terbuka!`, 'Akses pelatih diberikan.');
+                selectModule(targetedModuleForPassword);
+            } else {
+                passwordError.classList.remove('hidden');
+            }
+        }
+
+        function showNotification(type, title, message) {
+            notification.classList.remove('bg-green-500', 'bg-red-500', 'bg-amber-500');
+            if (type === 'success') {
+                notification.classList.add('bg-green-500');
+                notificationIcon.innerHTML = `<svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`;
+            } else if (type === 'warning') {
+                notification.classList.add('bg-amber-500');
+                notificationIcon.innerHTML = `<svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>`;
+            }
+            
+            notificationTitle.textContent = title;
+            notificationMessage.textContent = message;
+
+            notification.classList.remove('translate-x-[120%]');
+            notification.classList.add('translate-x-0');
+            
+            setTimeout(() => {
+                notification.classList.remove('translate-x-0');
+                notification.classList.add('translate-x-[120%]');
+            }, 4000);
+        }
+
+        // --- Fungsi Gemini ---
+        async function callGeminiAPI(prompt, maxRetries = 3) {
+            geminiLoading.classList.remove('hidden');
+            geminiOutputContent.textContent = '';
+            
+            let chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
+            const payload = { contents: chatHistory };
+            const apiKey = ""; // API key will be provided by the environment
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        if (response.status === 429 || response.status >= 500) { // Throttling or server error
+                            const delay = Math.pow(2, i) * 1000 + Math.random() * 1000; // Exponential backoff
+                            await new Promise(resolve => setTimeout(resolve, delay));
+                            continue; // Retry
+                        }
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const result = await response.json();
+                    
+                    geminiLoading.classList.add('hidden');
+                    if (result.candidates && result.candidates.length > 0 &&
+                        result.candidates[0].content && result.candidates[0].content.parts &&
+                        result.candidates[0].content.parts.length > 0) {
+                        return result.candidates[0].content.parts[0].text;
+                    } else {
+                        return "Tidak ada respons yang valid dari model.";
+                    }
+                } catch (error) {
+                    console.error("Error calling Gemini API:", error);
+                    if (i === maxRetries - 1) {
+                        geminiLoading.classList.add('hidden');
+                        return "Gagal memanggil API setelah beberapa kali percobaan.";
+                    }
+                }
+            }
+        }
+
+        function setupAndShowGeminiModal(featureType) {
+            geminiOutputContent.textContent = '';
+            geminiInputArea.innerHTML = '';
+            
+            let title, description, placeholder, generateHandler;
+
+            if (featureType === 'activityGenerator') {
+                title = "Generator Ide Aktivitas";
+                description = "Dapatkan ide aktivitas pembelajaran kreatif berdasarkan pertanyaan refleksi di modul ini.";
+                generateHandler = handleActivityGenerator;
+            } else if (featureType === 'promptEnhancer') {
+                title = "Penyempurna Prompt";
+                description = "Masukkan ide prompt sederhana, dan biarkan Gemini membantumu membuatnya lebih efektif.";
+                geminiInputArea.innerHTML = `<label for="prompt-input" class="block text-sm font-medium text-slate-700">Prompt Sederhana Anda:</label><textarea id="prompt-input" rows="4" class="mt-1 w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-orange-500" placeholder="Contoh: buatkan cerita tentang robot"></textarea>`;
+                generateHandler = handlePromptEnhancer;
+            } else if (featureType === 'feedbackGenerator') {
+                title = "Generator Umpan Balik";
+                description = "Jelaskan skenario microteaching Anda untuk mendapatkan ide umpan balik yang konstruktif.";
+                geminiInputArea.innerHTML = `<label for="scenario-input" class="block text-sm font-medium text-slate-700">Skenario Microteaching:</label><textarea id="scenario-input" rows="4" class="mt-1 w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-orange-500" placeholder="Contoh: Saya mengajar konsep 'dekomposisi' menggunakan studi kasus membuat nasi goreng..."></textarea>`;
+                generateHandler = handleFeedbackGenerator;
+            }
+
+            geminiModalTitle.textContent = title;
+            geminiModalDescription.textContent = description;
+            geminiModalGenerate.onclick = generateHandler;
+
+            showModal(geminiModal, geminiModalBackdrop, geminiModalContent);
+        }
+
+        async function handleActivityGenerator() {
+            const reflectionQuestions = presentationData[currentModuleIndex].slides.find(s => s.geminiFeature === 'activityGenerator').content;
+            const prompt = `Sebagai seorang desainer instruksional ahli, buatkan 3 ide aktivitas pembelajaran (masing-masing 1 paragraf) untuk guru SMA/SMK berdasarkan pertanyaan refleksi berikut:\n\n${reflectionQuestions}\n\nSetiap ide harus kreatif, praktis, dan relevan untuk mata pelajaran Koding & Kecerdasan Artifisial. Gunakan format Markdown.`;
+            const result = await callGeminiAPI(prompt);
+            geminiOutputContent.textContent = result;
+        }
+
+        async function handlePromptEnhancer() {
+            const userInput = document.getElementById('prompt-input').value;
+            if (!userInput.trim()) {
+                showNotification('warning', 'Input Kosong', 'Harap masukkan ide prompt Anda.');
+                return;
+            }
+            const prompt = `Anda adalah seorang ahli rekayasa prompt. Tugas Anda adalah menyempurnakan prompt sederhana dari seorang guru. Ambil ide inti dari prompt berikut dan kembangkan menjadi prompt yang lebih efektif dengan menambahkan unsur-unsur seperti peran (role), konteks, format output yang jelas, dan batasan.\n\nPrompt Sederhana: "${userInput}"\n\nPrompt yang Disempurnakan:`;
+            const result = await callGeminiAPI(prompt);
+            geminiOutputContent.textContent = result;
+        }
+
+        async function handleFeedbackGenerator() {
+            const userInput = document.getElementById('scenario-input').value;
+            if (!userInput.trim()) {
+                showNotification('warning', 'Input Kosong', 'Harap jelaskan skenario Anda.');
+                return;
+            }
+            const prompt = `Sebagai seorang ahli pedagogi dan pelatih guru, berikan 5 poin umpan balik (feedback) yang konstruktif untuk seorang guru yang baru saja melakukan microteaching. Skenarionya adalah sebagai berikut:\n\n"${userInput}"\n\nFokus pada kekuatan yang bisa diapresiasi dan area yang bisa ditingkatkan. Berikan saran yang praktis. Gunakan format Markdown.`;
+            const result = await callGeminiAPI(prompt);
+            geminiOutputContent.textContent = result;
+        }
+
+        // --- Pengaturan Awal ---
+        function initializePresentation() {
+            renderModuleTabs();
+            renderSlide();
+
+            nextBtn.addEventListener('click', showNextSlide);
+            prevBtn.addEventListener('click', showPrevSlide);
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowRight') nextBtn.click();
+                if (e.key === 'ArrowLeft') prevBtn.click();
+                if (e.key === 'Escape') {
+                    closeSubmissionModal();
+                    closePasswordModal();
+                    closeModal(geminiModal, geminiModalBackdrop, geminiModalContent);
+                }
+            });
+
+            modalBackdropSubmit.addEventListener('click', closeSubmissionModal);
+            cancelSubmissionBtn.addEventListener('click', closeSubmissionModal);
+            dropZone.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', (e) => handleFileSelect(e.target.files[0]));
+            removeFileBtn.addEventListener('click', resetSubmissionModalState);
+            submitBtn.addEventListener('click', simulateUpload);
+            
+            modalBackdropPassword.addEventListener('click', closePasswordModal);
+            cancelPasswordBtn.addEventListener('click', closePasswordModal);
+            submitPasswordBtn.addEventListener('click', checkPassword);
+            passwordInput.addEventListener('keyup', (e) => {
+                passwordError.classList.add('hidden');
+                if (e.key === 'Enter') submitPasswordBtn.click();
+            });
+
+            geminiModalBackdrop.addEventListener('click', () => closeModal(geminiModal, geminiModalBackdrop, geminiModalContent));
+            geminiModalClose.addEventListener('click', () => closeModal(geminiModal, geminiModalBackdrop, geminiModalContent));
+
+            dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('border-orange-500', 'bg-orange-50'); });
+            dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); dropZone.classList.remove('border-orange-500', 'bg-orange-50'); });
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('border-orange-500', 'bg-orange-50');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    fileInput.files = files;
+                    handleFileSelect(files[0]);
+                }
+            });
+
+            resetSubmissionModalState();
+        }
+
+        // Menjalankan aplikasi
+        document.addEventListener('DOMContentLoaded', () => {
+             pageLoginButton.addEventListener('click', checkPagePassword);
+             pagePasswordInput.addEventListener('keyup', (e) => {
+                pagePasswordError.classList.add('hidden');
+                if (e.key === 'Enter') pageLoginButton.click();
+             });
+        });
+
+    </script>
+
+</body>
+</html>
