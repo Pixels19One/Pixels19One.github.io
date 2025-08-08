@@ -43,7 +43,6 @@
 
         .modal-backdrop { transition: opacity 0.3s ease-in-out; }
         .modal-content { transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease-in-out; }
-        .gemini-output { white-space: pre-wrap; }
     </style>
 </head>
 <body class="text-slate-800">
@@ -159,34 +158,6 @@
         </div>
     </div>
 
-    <!-- Modal Gemini -->
-    <div id="gemini-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
-        <div id="gemini-modal-backdrop" class="absolute inset-0 bg-black/60 modal-backdrop"></div>
-        <div id="gemini-modal-content" class="modal-content bg-white rounded-2xl shadow-2xl w-full max-w-2xl m-4 transform scale-95 opacity-0 flex flex-col" style="max-height: 90vh;">
-            <div class="p-6 border-b">
-                <h3 id="gemini-modal-title" class="text-2xl font-bold text-slate-800"></h3>
-                <p id="gemini-modal-description" class="text-slate-600"></p>
-            </div>
-            <div class="p-6 flex-grow overflow-y-auto">
-                <div id="gemini-input-area">
-                    <!-- Input fields will be added here by JS -->
-                </div>
-                <div id="gemini-output-area" class="mt-4 p-4 bg-slate-50 rounded-lg border min-h-[200px]">
-                    <div id="gemini-loading" class="hidden text-center text-slate-500">
-                        <svg class="animate-spin h-8 w-8 text-orange-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                        <p class="mt-2">Menghasilkan respons...</p>
-                    </div>
-                    <div id="gemini-output-content" class="gemini-output text-slate-700"></div>
-                </div>
-            </div>
-            <div class="p-6 border-t bg-slate-50 rounded-b-2xl flex justify-end gap-3">
-                <button id="gemini-modal-close" class="bg-white hover:bg-slate-100 text-slate-700 font-semibold py-2 px-5 rounded-lg border border-slate-300 shadow-sm">Tutup</button>
-                <button id="gemini-modal-generate" class="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-5 rounded-lg shadow-lg shadow-orange-200">✨ Hasilkan</button>
-            </div>
-        </div>
-    </div>
-
-
     <!-- Notifikasi -->
     <div id="notification" class="fixed top-5 right-5 z-[100] text-white py-3 px-6 rounded-lg shadow-lg flex items-center gap-3 transform translate-x-[120%] transition-transform duration-500">
         <div id="notification-icon"></div>
@@ -219,7 +190,7 @@
                     { title: "KKA & Profil Lulusan", subtitle: "Kontribusi pada Pengembangan Karakter Siswa", content: "<h3>Mata pelajaran KKA berkontribusi mewujudkan profil lulusan yang memiliki:</h3><ul><li>Nalar kritis.</li><li>Kemampuan bekerja mandiri.</li><li>Keterampilan berkomunikasi dan berkolaborasi.</li><li>Kewargaan digital yang beretika dan bertanggung jawab.</li></ul>" },
                     { title: "Posisi KKA vs Informatika", subtitle: "Sinergi dalam Kurikulum Digital", content: "<ul><li><b>Informatika:</b> Mapel wajib di kelas 7-10 dan pilihan di 11-12, memberikan fondasi umum.</li><li><b>KKA:</b> Mapel pilihan dari kelas 5-12 untuk sekolah yang memiliki kapasitas, memberikan pendalaman spesifik.</li><li><b>Sinergi:</b> Pendidik perlu memastikan tidak ada materi yang berulang, khususnya pada elemen Berpikir Komputasional dan Literasi Digital. KKA diarahkan untuk eksplorasi lebih praktis.</li></ul>" },
                     { title: "Alur Pelatihan Modul 1", subtitle: "Tahapan Pembelajaran Menggunakan Taksonomi SOLO", content: "<p>Pelatihan ini menggunakan pendekatan Taksonomi SOLO untuk memastikan pemahaman yang mendalam, mulai dari tahap memahami hingga merefleksi.</p><ul><li><b>Memahami:</b> Menjelaskan ruang lingkup, rasional, dan elemen KKA.</li><li><b>Mengaplikasi:</b> Membuat tujuan pembelajaran yang terintegrasi dengan Profil Lulusan.</li><li><b>Merefleksi:</b> Diskusi kelompok mengenai peluang dan tantangan implementasi.</li></ul>" },
-                    { title: "Refleksi Modul 1", subtitle: "Pertanyaan untuk Pemikiran Lebih Lanjut", content: "<ul><li>Bagaimana Anda akan mengadaptasi elemen-elemen KKA ini ke dalam konteks kelas Anda?</li><li>Tantangan terbesar apa yang Anda antisipasi dalam mengajarkan etika KA kepada siswa?</li><li>Aktivitas <i>unplugged</i> apa yang bisa Anda rancang untuk mengajarkan konsep algoritma?</li></ul>", geminiFeature: "activityGenerator" },
+                    { title: "Refleksi Modul 1", subtitle: "Pertanyaan untuk Pemikiran Lebih Lanjut", content: "<ul><li>Bagaimana Anda akan mengadaptasi elemen-elemen KKA ini ke dalam konteks kelas Anda?</li><li>Tantangan terbesar apa yang Anda antisipasi dalam mengajarkan etika KA kepada siswa?</li><li>Aktivitas <i>unplugged</i> apa yang bisa Anda rancang untuk mengajarkan konsep algoritma?</li></ul>" },
                     { title: "Rangkuman Modul 1", subtitle: "Poin-Poin Kunci", content: "<ul><li>Mata pelajaran Koding dan KA dirancang untuk membekali siswa dengan keterampilan abad ke-21 yang esensial.</li><li>Pembelajaran ini bersifat holistik, mengintegrasikan kompetensi teknis dengan pengembangan karakter dan etika.</li><li>Kurikulum KKA mencakup enam elemen utama yang saling terkait, dari berpikir komputasional hingga analisis data.</li><li>Implementasinya harus disesuaikan dengan kapasitas sekolah dan bersinergi dengan mata pelajaran Informatika.</li></ul>" },
                     { title: "Tugas Modul 1", subtitle: "Lembar Kerja 1", content: "<h3>Aktivitas:</h3><ul><li>Menjelaskan ruang lingkup, rasional, tujuan, karakteristik, dan elemen KKA.</li><li>Menjelaskan konsep keilmuan dan implementasi KKA di sekolah.</li><li>Membuat ringkasan atau peta konsep dari materi Modul 1.</li></ul><h3>Tagihan:</h3><p>LK 1: Ringkasan Modul 1 yang diunggah dalam format yang ditentukan.</p>", isTask: true },
                 ]
@@ -260,7 +231,7 @@
                     { title: "Strategi Penyusunan Prompt", subtitle: "Zero-Shot vs. Few-Shot Prompting", content: "<ul><li><b>Zero-Shot Prompting:</b> Memberikan instruksi langsung <b>tanpa contoh tambahan</b>. Cocok untuk tugas sederhana.</li><li><b>Few-Shot Prompting:</b> Memberikan <b>beberapa contoh</b> yang menunjukkan format atau gaya yang diinginkan. Sangat efektif untuk tugas kompleks dan meningkatkan akurasi.</li></ul>" },
                     { title: "Analisis dan Evaluasi Output", subtitle: "Memastikan Kualitas Hasil dari KA Generatif", content: "<p>Proses evaluasi output KA sangat penting dan mencakup:</p><ol><li><b>Verifikasi Akurasi:</b> Memastikan informasi sesuai fakta.</li><li><b>Penilaian Relevansi:</b> Mengevaluasi kesesuaian output dengan prompt.</li><li><b>Mengukur Kreativitas:</b> Menilai kemampuan model menghasilkan ide inovatif.</li><li><b>Mengidentifikasi Bias:</b> Memeriksa adanya bias gender, etnis, atau stereotip.</li></ol>" },
                     { title: "Kesimpulan & Isu Etika", subtitle: "Rangkuman Modul 3", content: "<h3>Kesimpulan</h3><ul><li>Rekayasa prompt adalah keterampilan kunci untuk memaksimalkan potensi KA generatif.</li><li>Proses iterasi dan evaluasi kritis sangat penting untuk memastikan kualitas.</li></ul><h3>Isu Etika</h3><ul><li>Plagiarisme & Hak Cipta</li><li>Bias & Ketidakberpihakan</li><li>Transparansi Penggunaan</li><li>Akuntabilitas</li></ul>" },
-                    { title: "Refleksi Modul 3", subtitle: "Pertanyaan untuk Pemikiran", content: "<ul><li>Bagaimana Anda akan mengajarkan siswa untuk membuat prompt yang efektif dan etis?</li><li>Strategi apa yang akan Anda gunakan untuk memverifikasi akurasi informasi yang dihasilkan oleh KA di kelas?</li></ul>", geminiFeature: "promptEnhancer" },
+                    { title: "Refleksi Modul 3", subtitle: "Pertanyaan untuk Pemikiran", content: "<ul><li>Bagaimana Anda akan mengajarkan siswa untuk membuat prompt yang efektif dan etis?</li><li>Strategi apa yang akan Anda gunakan untuk memverifikasi akurasi informasi yang dihasilkan oleh KA di kelas?</li></ul>" },
                     { title: "Tugas Modul 3", subtitle: "Lembar Kerja 3.1 & 3.2", content: "<ul><li><b>LK 3.1: Membuat Prompt Multi-Langkah:</b> Merancang serangkaian prompt untuk proyek kompleks (misal: RPP), lalu melakukan revisi iteratif.</li><li><b>LK 3.2: Memproduksi Konten Kreatif:</b> Menggunakan KA dari brainstorming hingga produksi konten, dengan fokus pada penyuntingan manual dan evaluasi etis.</li></ul>", isTask: true },
                 ]
             },
@@ -368,19 +339,6 @@
         const notificationTitle = document.getElementById('notification-title');
         const notificationMessage = document.getElementById('notification-message');
         
-        // Elemen Modal Gemini
-        const geminiModal = document.getElementById('gemini-modal');
-        const geminiModalBackdrop = document.getElementById('gemini-modal-backdrop');
-        const geminiModalContent = document.getElementById('gemini-modal-content');
-        const geminiModalTitle = document.getElementById('gemini-modal-title');
-        const geminiModalDescription = document.getElementById('gemini-modal-description');
-        const geminiInputArea = document.getElementById('gemini-input-area');
-        const geminiOutputArea = document.getElementById('gemini-output-area');
-        const geminiLoading = document.getElementById('gemini-loading');
-        const geminiOutputContent = document.getElementById('gemini-output-content');
-        const geminiModalClose = document.getElementById('gemini-modal-close');
-        const geminiModalGenerate = document.getElementById('gemini-modal-generate');
-
         // --- Fungsi ---
         
         function checkPagePassword() {
@@ -473,18 +431,6 @@
 
             const progress = ((currentSlideIndex + 1) / module.slides.length) * 100;
             progressBarFill.style.width = `${progress}%`;
-
-            if (slide.geminiFeature) {
-                const geminiBtn = document.createElement('button');
-                geminiBtn.className = 'mt-8 bg-gradient-to-r from-orange-500 to-amber-400 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-amber-500/50 transform hover:scale-105 transition-all duration-300';
-                geminiBtn.onclick = () => setupAndShowGeminiModal(slide.geminiFeature);
-                
-                if(slide.geminiFeature === 'activityGenerator') geminiBtn.innerHTML = '✨ Hasilkan Ide Aktivitas';
-                if(slide.geminiFeature === 'promptEnhancer') geminiBtn.innerHTML = '✨ Coba Penyempurna Prompt';
-                if(slide.geminiFeature === 'feedbackGenerator') geminiBtn.innerHTML = '✨ Dapatkan Ide Umpan Balik';
-                
-                slideContentEl.appendChild(geminiBtn);
-            }
 
             if (slide.isTask) {
                 const submitTaskBtn = document.createElement('button');
@@ -643,111 +589,6 @@
             }, 4000);
         }
 
-        // --- Fungsi Gemini ---
-        async function callGeminiAPI(prompt, maxRetries = 3) {
-            geminiLoading.classList.remove('hidden');
-            geminiOutputContent.textContent = '';
-            
-            let chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
-            const payload = { contents: chatHistory };
-            const apiKey = "AIzaSyBNfBNkH78QJjjVPGc2nA1-A0_dJc3Dyms"; // API key will be provided by the environment
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
-
-            for (let i = 0; i < maxRetries; i++) {
-                try {
-                    const response = await fetch(apiUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-
-                    if (!response.ok) {
-                        if (response.status === 429 || response.status >= 500) { // Throttling or server error
-                            const delay = Math.pow(2, i) * 1000 + Math.random() * 1000; // Exponential backoff
-                            await new Promise(resolve => setTimeout(resolve, delay));
-                            continue; // Retry
-                        }
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-
-                    const result = await response.json();
-                    
-                    geminiLoading.classList.add('hidden');
-                    if (result.candidates && result.candidates.length > 0 &&
-                        result.candidates[0].content && result.candidates[0].content.parts &&
-                        result.candidates[0].content.parts.length > 0) {
-                        return result.candidates[0].content.parts[0].text;
-                    } else {
-                        return "Tidak ada respons yang valid dari model.";
-                    }
-                } catch (error) {
-                    console.error("Error calling Gemini API:", error);
-                    if (i === maxRetries - 1) {
-                        geminiLoading.classList.add('hidden');
-                        return "Gagal memanggil API setelah beberapa kali percobaan.";
-                    }
-                }
-            }
-        }
-
-        function setupAndShowGeminiModal(featureType) {
-            geminiOutputContent.textContent = '';
-            geminiInputArea.innerHTML = '';
-            
-            let title, description, placeholder, generateHandler;
-
-            if (featureType === 'activityGenerator') {
-                title = "Generator Ide Aktivitas";
-                description = "Dapatkan ide aktivitas pembelajaran kreatif berdasarkan pertanyaan refleksi di modul ini.";
-                generateHandler = handleActivityGenerator;
-            } else if (featureType === 'promptEnhancer') {
-                title = "Penyempurna Prompt";
-                description = "Masukkan ide prompt sederhana, dan biarkan Gemini membantumu membuatnya lebih efektif.";
-                geminiInputArea.innerHTML = `<label for="prompt-input" class="block text-sm font-medium text-slate-700">Prompt Sederhana Anda:</label><textarea id="prompt-input" rows="4" class="mt-1 w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-orange-500" placeholder="Contoh: buatkan cerita tentang robot"></textarea>`;
-                generateHandler = handlePromptEnhancer;
-            } else if (featureType === 'feedbackGenerator') {
-                title = "Generator Umpan Balik";
-                description = "Jelaskan skenario microteaching Anda untuk mendapatkan ide umpan balik yang konstruktif.";
-                geminiInputArea.innerHTML = `<label for="scenario-input" class="block text-sm font-medium text-slate-700">Skenario Microteaching:</label><textarea id="scenario-input" rows="4" class="mt-1 w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-orange-500" placeholder="Contoh: Saya mengajar konsep 'dekomposisi' menggunakan studi kasus membuat nasi goreng..."></textarea>`;
-                generateHandler = handleFeedbackGenerator;
-            }
-
-            geminiModalTitle.textContent = title;
-            geminiModalDescription.textContent = description;
-            geminiModalGenerate.onclick = generateHandler;
-
-            showModal(geminiModal, geminiModalBackdrop, geminiModalContent);
-        }
-
-        async function handleActivityGenerator() {
-            const reflectionQuestions = presentationData[currentModuleIndex].slides.find(s => s.geminiFeature === 'activityGenerator').content;
-            const prompt = `Sebagai seorang desainer instruksional ahli, buatkan 3 ide aktivitas pembelajaran (masing-masing 1 paragraf) untuk guru SMA/SMK berdasarkan pertanyaan refleksi berikut:\n\n${reflectionQuestions}\n\nSetiap ide harus kreatif, praktis, dan relevan untuk mata pelajaran Koding & Kecerdasan Artifisial. Gunakan format Markdown.`;
-            const result = await callGeminiAPI(prompt);
-            geminiOutputContent.textContent = result;
-        }
-
-        async function handlePromptEnhancer() {
-            const userInput = document.getElementById('prompt-input').value;
-            if (!userInput.trim()) {
-                showNotification('warning', 'Input Kosong', 'Harap masukkan ide prompt Anda.');
-                return;
-            }
-            const prompt = `Anda adalah seorang ahli rekayasa prompt. Tugas Anda adalah menyempurnakan prompt sederhana dari seorang guru. Ambil ide inti dari prompt berikut dan kembangkan menjadi prompt yang lebih efektif dengan menambahkan unsur-unsur seperti peran (role), konteks, format output yang jelas, dan batasan.\n\nPrompt Sederhana: "${userInput}"\n\nPrompt yang Disempurnakan:`;
-            const result = await callGeminiAPI(prompt);
-            geminiOutputContent.textContent = result;
-        }
-
-        async function handleFeedbackGenerator() {
-            const userInput = document.getElementById('scenario-input').value;
-            if (!userInput.trim()) {
-                showNotification('warning', 'Input Kosong', 'Harap jelaskan skenario Anda.');
-                return;
-            }
-            const prompt = `Sebagai seorang ahli pedagogi dan pelatih guru, berikan 5 poin umpan balik (feedback) yang konstruktif untuk seorang guru yang baru saja melakukan microteaching. Skenarionya adalah sebagai berikut:\n\n"${userInput}"\n\nFokus pada kekuatan yang bisa diapresiasi dan area yang bisa ditingkatkan. Berikan saran yang praktis. Gunakan format Markdown.`;
-            const result = await callGeminiAPI(prompt);
-            geminiOutputContent.textContent = result;
-        }
-
         // --- Pengaturan Awal ---
         function initializePresentation() {
             renderModuleTabs();
@@ -761,7 +602,6 @@
                 if (e.key === 'Escape') {
                     closeSubmissionModal();
                     closePasswordModal();
-                    closeModal(geminiModal, geminiModalBackdrop, geminiModalContent);
                 }
             });
 
@@ -779,9 +619,6 @@
                 passwordError.classList.add('hidden');
                 if (e.key === 'Enter') submitPasswordBtn.click();
             });
-
-            geminiModalBackdrop.addEventListener('click', () => closeModal(geminiModal, geminiModalBackdrop, geminiModalContent));
-            geminiModalClose.addEventListener('click', () => closeModal(geminiModal, geminiModalBackdrop, geminiModalContent));
 
             dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('border-orange-500', 'bg-orange-50'); });
             dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); dropZone.classList.remove('border-orange-500', 'bg-orange-50'); });
